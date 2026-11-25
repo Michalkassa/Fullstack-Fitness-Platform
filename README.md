@@ -86,38 +86,14 @@ rewards consistency.
 
 | Layer | Tech |
 |------|------|
-| Backend | Spring Boot 4 · Java 25 · Spring Web MVC · Spring Data JPA · Spring Security (JWT) · Bean Validation |
-| Database | PostgreSQL 16 · Flyway migrations |
-| Backend tests | JUnit 5 · MockMvc · Mockito · Testcontainers |
-| Frontend | React 19 · TypeScript · Vite · React Router · TanStack Query |
-| UI | Tailwind CSS · Headless UI · React Icons · react-select |
-| Charts | Chart.js · custom contribution heatmap |
-| Frontend tests | Vitest · Testing Library |
-| Tooling | Docker · docker-compose · nginx |
-
----
-
-## Project structure
-
-```
-.
-├── backend/                 Spring Boot API (Maven)
-│   └── src/main/resources/
-│       ├── application.yml
-│       └── db/migration/    Flyway: V1 schema, V2 exercise catalog + programs
-├── frontend/                React + TypeScript SPA (Vite)
-│   └── src/
-│       ├── api/             types.ts (API shapes), endpoints.ts, queries.ts (React Query hooks)
-│       ├── auth/            token storage, AuthContext, route guards
-│       ├── components/      shared UI
-│       ├── layouts/         dashboard sidebar / bottom nav
-│       ├── lib/             pure helpers (+ tests)
-│       └── pages/           one file per route
-├── docs/
-│   ├── API.md               REST contract, business rules, validation rules
-│   └── screenshots/
-└── docker-compose.yml       db + backend + frontend
-```
+| Backend | Spring Boot 4, Java 25, Spring Web MVC, Spring Data JPA, Spring Security (JWT), Bean Validation |
+| Database | PostgreSQL 16, Flyway migrations |
+| Backend tests | JUnit 5, MockMvc, Mockito, Testcontainers |
+| Frontend | React 19, TypeScript, Vite, React Router, TanStack Query |
+| UI | Tailwind CSS, Headless UI, React Icons, react-select |
+| Charts | Chart.js, custom contribution heatmap |
+| Frontend tests | Vitest, Testing Library |
+| Tooling | Docker, docker-compose, nginx |
 
 ---
 

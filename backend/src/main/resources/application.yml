@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: lockedin-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/lockedin}
+    username: ${DATABASE_USERNAME:lockedin}
+    password: ${DATABASE_PASSWORD:lockedin}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway owns the schema (src/main/resources/db/migration); Hibernate only checks it.
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  cors:
+    # Comma-separated list of origins allowed to call the API from a browser.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  jwt:
+    # Used to sign access tokens once you implement auth. Must be >= 32 bytes for HS256.
+    secret: ${JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
+    expiration: ${JWT_EXPIRATION:7d}

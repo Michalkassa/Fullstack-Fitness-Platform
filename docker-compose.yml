@@ -1,3 +1,5 @@
+# Full stack:        docker compose up --build      -> http://localhost:3000
+# Database only:     docker compose up db           (for running backend/frontend locally)
 services:
   db:
     image: postgres:16-alpine
@@ -16,21 +18,28 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build:
-      context: .
+  backend:
+    build: ./backend
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://lockedin:lockedin@db:5432/lockedin
-      AUTH_SECRET: ${AUTH_SECRET:-dev-only-secret-change-me}
-      AUTH_TRUST_HOST: "true"
+      DATABASE_URL: jdbc:postgresql://db:5432/lockedin
+      DATABASE_USERNAME: lockedin
+      DATABASE_PASSWORD: lockedin
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-dev-only-secret-change-me}
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
     ports:
-      - "3000:3000"
-    # Apply the schema, seed the exercise catalog/programs (idempotent), then serve.
-    command: sh -c "npx prisma migrate deploy && node prisma/seed.mjs && node server.js"
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   lockedin_pgdata:

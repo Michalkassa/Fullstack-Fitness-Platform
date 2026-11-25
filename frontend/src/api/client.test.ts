@@ -31,7 +31,7 @@ describe("api client", () => {
 
   it("turns problem details into ApiError", async () => {
     mockFetch(400, { title: "Bad Request", detail: "Weight must be positive", errors: { weight: "must be positive" } });
-    const err = await http.post("/api/x", {}).catch((e) => e);
+    const err = (await http.post("/api/x", {}).catch((e: unknown) => e)) as ApiError;
     expect(err).toBeInstanceOf(ApiError);
     expect(err.status).toBe(400);
     expect(err.message).toBe("Weight must be positive");

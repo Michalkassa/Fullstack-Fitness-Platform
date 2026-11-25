@@ -1,5 +1,11 @@
-# Full stack:        docker compose up --build      -> http://localhost:3000
-# Database only:     docker compose up db           (for running backend/frontend locally)
+# Full stack:     docker compose up --build -d    -> http://localhost:3000
+# Database only:  docker compose up -d db         (run backend/frontend locally)
+# Stop:           docker compose down             (add -v to wipe the database)
+#
+# Host ports can be changed in .env if they clash with something else:
+#   FRONTEND_PORT (3000), BACKEND_PORT (8080), DB_PORT (5432)
+name: lockedin
+
 services:
   db:
     image: postgres:16-alpine
@@ -9,14 +15,14 @@ services:
       POSTGRES_PASSWORD: lockedin
       POSTGRES_DB: lockedin
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
-      - lockedin_pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lockedin"]
+      test: ["CMD-SHELL", "pg_isready -U lockedin -d lockedin"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   backend:
     build: ./backend
@@ -29,17 +35,18 @@ services:
       DATABASE_USERNAME: lockedin
       DATABASE_PASSWORD: lockedin
       JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-dev-only-secret-change-me}
-      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      CORS_ALLOWED_ORIGINS: http://localhost:${FRONTEND_PORT:-3000}
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
 
   frontend:
     build: ./frontend
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3000}:80"
 
 volumes:
-  lockedin_pgdata:
+  pgdata:

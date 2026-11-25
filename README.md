@@ -156,6 +156,9 @@ docker compose up --build
 
 Then open **http://localhost:3000**. nginx serves the frontend and forwards `/api` to the backend.
 
+If ports 3000, 8080 or 5432 are already taken, set `FRONTEND_PORT`, `BACKEND_PORT` or `DB_PORT` in `.env`.
+`docker compose down` stops everything; add `-v` to also delete the database volume.
+
 ---
 
 ## Testing

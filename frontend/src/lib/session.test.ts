@@ -1,4 +1,4 @@
-import { formatElapsed, loadDraft, saveDraft, toSessionRequest } from "./session";
+import { exceedsRepCap, formatElapsed, loadDraft, saveDraft, toSessionRequest } from "./session";
 
 describe("toSessionRequest", () => {
   it("keeps only complete, valid sets and drops empty exercises", () => {
@@ -23,6 +23,20 @@ describe("toSessionRequest", () => {
         { exerciseId: "c", sets: [{ weight: 0, reps: 10 }] },
       ],
     });
+  });
+});
+
+describe("rep cap", () => {
+  it("never submits a set above 36 reps", () => {
+    const req = toSessionRequest(
+      { startedAt: 0, sets: { a: [{ weight: "50", reps: "36" }, { weight: "50", reps: "37" }] } },
+      ["a"],
+    );
+    expect(req).toEqual({ exercises: [{ exerciseId: "a", sets: [{ weight: 50, reps: 36 }] }] });
+  });
+  it("flags any set above 36 reps so it isn't dropped silently", () => {
+    expect(exceedsRepCap({ a: [{ weight: "50", reps: "36" }], b: [{ weight: "", reps: "" }] })).toBe(false);
+    expect(exceedsRepCap({ a: [{ weight: "50", reps: "5" }], b: [{ weight: "20", reps: "40" }] })).toBe(true);
   });
 });
 

@@ -3,6 +3,7 @@
  * accidental navigation doesn't lose the sets you've entered.
  */
 import type { WorkoutSessionRequest } from "@/api/types";
+import { MAX_REPS } from "./validation";
 
 export interface DraftSet {
   weight: string;
@@ -40,7 +41,7 @@ export function clearDraft(workoutId: string): void {
   localStorage.removeItem(key(workoutId));
 }
 
-/** Only sets with a valid weight (>= 0) and positive whole reps are submitted. */
+/** Only sets with a valid weight (>= 0) and whole reps from 1 to MAX_REPS are submitted. */
 export function toSessionRequest(draft: SessionDraft, exerciseOrder: string[]): WorkoutSessionRequest {
   const exercises = exerciseOrder
     .map((exerciseId) => ({
@@ -48,10 +49,15 @@ export function toSessionRequest(draft: SessionDraft, exerciseOrder: string[]): 
       sets: (draft.sets[exerciseId] ?? [])
         .filter((s) => s.weight.trim() !== "" && s.reps.trim() !== "")
         .map((s) => ({ weight: Number(s.weight), reps: Number(s.reps) }))
-        .filter((s) => Number.isFinite(s.weight) && s.weight >= 0 && Number.isInteger(s.reps) && s.reps > 0),
+        .filter((s) => Number.isFinite(s.weight) && s.weight >= 0 && Number.isInteger(s.reps) && s.reps > 0 && s.reps <= MAX_REPS),
     }))
     .filter((e) => e.sets.length > 0);
   return { exercises };
+}
+
+/** True if any set has more reps than the backend accepts, so the UI can stop instead of dropping it. */
+export function exceedsRepCap(sets: SessionDraft["sets"]): boolean {
+  return Object.values(sets).some((list) => list.some((s) => s.reps.trim() !== "" && Number(s.reps) > MAX_REPS));
 }
 
 /** "hh:mm:ss" for an elapsed number of milliseconds. */

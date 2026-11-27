@@ -6,6 +6,8 @@
 
 export const NAME_MAX_LENGTH = 40;
 export const PASSWORD_MIN_LENGTH = 8;
+/** Brzycki 1RM breaks down above this; the backend rejects more (OneRepMax.MAX_REPS). */
+export const MAX_REPS = 36;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -41,6 +43,7 @@ export function validateSet(v: { weight: string; reps: string }): string | null 
   const reps = Number(v.reps);
   if (v.weight.trim() === "" || !Number.isFinite(weight) || weight < 0) return message;
   if (v.reps.trim() === "" || !Number.isInteger(reps) || reps <= 0) return message;
+  if (reps > MAX_REPS) return `At most ${MAX_REPS} reps per set`;
   return null;
 }
 

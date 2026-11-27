@@ -10,7 +10,7 @@ import LineChart from "@/components/LineChart";
 import Modal from "@/components/Modal";
 import QueryState from "@/components/QueryState";
 import { formatDate } from "@/lib/dates";
-import { NAME_MAX_LENGTH, validateSet } from "@/lib/validation";
+import { MAX_REPS, NAME_MAX_LENGTH, validateSet } from "@/lib/validation";
 
 function AddLog({ exerciseId }: { exerciseId: string }) {
   const [open, setOpen] = useState(false);
@@ -45,7 +45,7 @@ function AddLog({ exerciseId }: { exerciseId: string }) {
           <h3 className="text-lg font-bold">Add new log</h3>
           <input type="number" step="0.01" min="0" aria-label="Weight in kilograms" placeholder="Weight (kg)"
             className="input-field" value={weight} onChange={(e) => setWeight(e.target.value)} autoFocus />
-          <input type="number" min="1" step="1" aria-label="Repetitions" placeholder="Repetitions"
+          <input type="number" min="1" max={MAX_REPS} step="1" aria-label="Repetitions" placeholder="Repetitions"
             className="input-field" value={reps} onChange={(e) => setReps(e.target.value)} />
           <ErrorText error={error} />
           <button className="btn-primary" type="submit" disabled={add.isPending}>Submit</button>

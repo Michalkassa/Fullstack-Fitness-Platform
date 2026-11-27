@@ -1142,7 +1142,7 @@ rejects a request, the UI shows the message from the table.
 | exercise / workout `description` | required, not blank | `Enter a name and a description` |
 | body weight `weight` | > 0 | `Please enter a weight` |
 | log / set `weight` | >= 0 | `Enter a weight and the reps` |
-| log / set `reps` | whole number, 1 to 36 | `Enter a weight and the reps` |
+| log / set `reps` | whole number, 1 to 36 | `Enter a weight and the reps` / `At most 36 reps per set` |
 | nutrition `calories` | required whole number >= 0 | `Enter a calorie amount` / `Calories cannot be negative` |
 | nutrition `protein` / `carbs` / `fat` | >= 0, default 0 | `Macros cannot be negative` |
 

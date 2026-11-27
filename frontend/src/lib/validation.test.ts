@@ -1,4 +1,4 @@
-import { validateLogin, validateMacros, validateNamed, validateRegister, validateSet } from "./validation";
+import { MAX_REPS, validateLogin, validateMacros, validateNamed, validateRegister, validateSet } from "./validation";
 
 describe("validation", () => {
   it("checks login input", () => {
@@ -21,6 +21,12 @@ describe("validation", () => {
     expect(validateSet({ weight: "100", reps: "5" })).toBeNull();
     expect(validateSet({ weight: "100", reps: "5.5" })).not.toBeNull();
     expect(validateSet({ weight: "", reps: "5" })).not.toBeNull();
+  });
+  it("caps reps at 36, matching the backend", () => {
+    expect(MAX_REPS).toBe(36);
+    expect(validateSet({ weight: "100", reps: "36" })).toBeNull();
+    expect(validateSet({ weight: "100", reps: "37" })).toBe("At most 36 reps per set");
+    expect(validateSet({ weight: "100", reps: "0" })).toBe("Enter a weight and the reps");
   });
   it("checks macros", () => {
     expect(validateMacros({ calories: "", protein: "", carbs: "", fat: "" })).toBe("Enter a calorie amount");

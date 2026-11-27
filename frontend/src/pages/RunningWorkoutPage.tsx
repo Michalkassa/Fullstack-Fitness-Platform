@@ -9,6 +9,7 @@ import QueryState from "@/components/QueryState";
 import {
   clearDraft,
   emptySet,
+  exceedsRepCap,
   formatElapsed,
   loadDraft,
   saveDraft,
@@ -16,6 +17,7 @@ import {
   type DraftSet,
   type SessionDraft,
 } from "@/lib/session";
+import { MAX_REPS } from "@/lib/validation";
 
 function Timer({ startedAt }: { startedAt: number }) {
   const [now, setNow] = useState(Date.now());
@@ -65,7 +67,7 @@ function ExerciseSets({ item, sets, onChange }: ExerciseSetsProps) {
                     onChange={(e) => update(i, { weight: e.target.value })} className="input-field max-w-24 px-2 py-1 text-center" />
                 </td>
                 <td>
-                  <input type="number" min="1" step="1" aria-label={`Set ${i + 1} repetitions`}
+                  <input type="number" min="1" max={MAX_REPS} step="1" aria-label={`Set ${i + 1} repetitions`}
                     placeholder={prev[i] ? String(prev[i].reps) : "0"} value={set.reps}
                     onChange={(e) => update(i, { reps: e.target.value })} className="input-field max-w-24 px-2 py-1 text-center" />
                 </td>
@@ -103,10 +105,9 @@ export default function RunningWorkoutPage() {
 
   function finish() {
     if (!workout.data) return;
-    const body = toSessionRequest(
-      { ...draft, sets: Object.fromEntries(workout.data.exercises.map((e) => [e.exerciseId, setsFor(e.exerciseId)])) },
-      workout.data.exercises.map((e) => e.exerciseId),
-    );
+    const sets = Object.fromEntries(workout.data.exercises.map((e) => [e.exerciseId, setsFor(e.exerciseId)]));
+    if (exceedsRepCap(sets)) return setError(`At most ${MAX_REPS} reps per set. Lower the reps before finishing.`);
+    const body = toSessionRequest({ ...draft, sets }, workout.data.exercises.map((e) => e.exerciseId));
     if (body.exercises.length === 0) return setError("Enter at least one set (weight and reps) before finishing.");
     setError(null);
     complete.mutate(body, {

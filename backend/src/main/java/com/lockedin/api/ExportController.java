@@ -44,9 +44,13 @@ class ExportController {
             .body(body);
     }
 
-    /** 38. A one-page progress report, {@code application/pdf}. Not built yet: needs a PDF library. */
+    /** 38. A one-page progress report, {@code application/pdf}. */
     @GetMapping("/pdf")
-    ResponseEntity<byte[]> pdf() {
-        throw new NotImplementedException();
+    ResponseEntity<byte[]> pdf(@CurrentUser UUID userId) {
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(HttpHeaders.CONTENT_DISPOSITION,
+                ContentDisposition.attachment().filename("lockedin-progress-report.pdf").build().toString())
+            .body(exportService.pdf(userId));
     }
 }

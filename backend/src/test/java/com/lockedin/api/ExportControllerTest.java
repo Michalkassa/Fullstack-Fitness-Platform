@@ -66,9 +66,20 @@ class ExportControllerTest {
     }
 
     @Test
-    void pdfIsNotImplementedYet() throws Exception {
+    void pdfIsAnAttachment() throws Exception {
+        byte[] pdf = "%PDF-1.4 fake".getBytes();
+        given(service.pdf(USER_ID)).willReturn(pdf);
+
         mvc.perform(get("/api/export/pdf").with(signedIn()))
-            .andExpect(status().isNotImplemented())
-            .andExpect(jsonPath("$.detail").value("This endpoint isn't implemented yet"));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/pdf"))
+            .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"lockedin-progress-report.pdf\""))
+            .andExpect(content().bytes(pdf));
+    }
+
+    @Test
+    void pdfNeedsAToken() throws Exception {
+        mvc.perform(get("/api/export/pdf")).andExpect(status().isUnauthorized());
     }
 }

@@ -13,7 +13,7 @@ you implement makes the matching screen work.
 | `src/main/resources/application.yml` | DB connection, CORS origins, JWT settings (all overridable by env vars) |
 | `src/main/resources/persistence/db/migration/V1__init_schema.sql` | All tables (UUID primary keys, cascading deletes) |
 | `src/main/resources/persistence/db/migration/V2__seed_catalog_and_programs.sql` | 34-exercise catalog, system user, 7 program templates |
-| `config/SecurityConfig.java` | Stateless, CSRF off, CORS, BCrypt `PasswordEncoder`. **Every request is permitted for now.** |
+| `config/SecurityConfig.java` | Stateless, CSRF off, CORS, BCrypt `PasswordEncoder`, bearer JWT required except on auth and health |
 | `api/HealthController.java` + test | `GET /api/health`, a worked example of the test-first loop |
 | `BackendApplicationTests` | Boots the full app against a Testcontainers Postgres (skipped without Docker) |
 | `TestBackendApplication` | Run the app locally against a throwaway Testcontainers Postgres |
@@ -87,7 +87,7 @@ controller responses.
 The order below unlocks the UI screen by screen. Write the failing test first for each box.
 
 ### 1. Foundations
-- [ ] Global `@RestControllerAdvice` that turns validation errors, not-found and conflicts into `ProblemDetail` (400 / 404 / 409) with a user-facing `detail`
+- [x] Global `@RestControllerAdvice` that turns validation errors, not-found and conflicts into `ProblemDetail` (400 / 404 / 409) with a user-facing `detail`
 - [x] Pure rules with unit tests: `OneRepMax` (Brzycki), `Xp` (`xpForLevel`, `levelFromXp`, `levelProgress`). Test cases are in API.md
 
 ### 2. Auth (unlocks login/register)
@@ -95,9 +95,9 @@ The order below unlocks the UI screen by screen. Write the failing test first fo
 - [x] `POST /api/auth/register`: 201, 400, 409
 - [x] `POST /api/auth/login`: 200, 401
 - [x] JWT issue (`TokenService`, HS256 via `JwtConfig`)
-- [ ] JWT validate; filter populates the security context
-- [ ] `SecurityConfig`: permit only `/api/auth/**`, `/api/health`, `/actuator/health`; 401 for everything else without a valid token
-- [ ] `GET /api/users/me`, `GET /api/users/me/stats`
+- [x] JWT validate (resource server); controllers take `@CurrentUser UUID userId`
+- [x] `SecurityConfig`: permit only `/api/auth/**`, `/api/health`, `/actuator/health`; 401 for everything else without a valid token
+- [x] `GET /api/users/me`, `GET /api/users/me/stats`
 
 ### 3. Body weight (Body Weight page, dashboard chart)
 - [ ] `GET` / `POST` / `DELETE /api/bodyweights`. Test that one user can't see or delete another's rows (404)

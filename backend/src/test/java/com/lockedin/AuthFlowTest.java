@@ -1,6 +1,7 @@
 package com.lockedin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +56,21 @@ class AuthFlowTest {
             .andReturn();
         String loginToken = JsonPath.read(loggedIn.getResponse().getContentAsString(), "$.token");
         assertThat(jwtDecoder.decode(loginToken).getSubject()).isEqualTo(userId);
+
+        mvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + loginToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(userId))
+            .andExpect(jsonPath("$.email").value(email));
+        mvc.perform(get("/api/users/me/stats").header(HttpHeaders.AUTHORIZATION, "Bearer " + loginToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.level").value(1));
+    }
+
+    @Test
+    void protectedEndpointsNeedATokenButActuatorHealthDoesNot() throws Exception {
+        mvc.perform(get("/api/users/me")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/exercises")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
     }
 
     @Test

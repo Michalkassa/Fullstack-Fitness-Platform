@@ -1,5 +1,6 @@
 package com.lockedin;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import com.lockedin.config.SecurityConfig;
 import com.lockedin.models.Log;
@@ -29,6 +31,7 @@ import com.lockedin.services.UserService;
 /**
  * Every endpoint in docs/API.md is mapped at its documented path and answers 501 until it's built.
  * When you implement an endpoint, remove its row here and give it a real controller test.
+ * Requests carry a signed-in user, since everything here needs a token (see SecurityRulesTest).
  */
 @WebMvcTest
 @Import(SecurityConfig.class)
@@ -58,8 +61,6 @@ class StubEndpointsTest {
         String session = """
             {"exercises": [{"exerciseId": "%s", "sets": [{"weight": 100, "reps": 5}]}]}""".formatted(ID);
         return Stream.of(
-            Arguments.of("GET", "/api/users/me", null),
-            Arguments.of("GET", "/api/users/me/stats", null),
             Arguments.of("GET", "/api/bodyweights", null),
             Arguments.of("POST", "/api/bodyweights", "{\"weight\": 82.5}"),
             Arguments.of("DELETE", "/api/bodyweights/" + ID, null),
@@ -99,7 +100,7 @@ class StubEndpointsTest {
     @ParameterizedTest(name = "{0} {1}")
     @MethodSource("endpoints")
     void isMappedAndNotImplementedYet(String method, String path, String body) throws Exception {
-        MockHttpServletRequestBuilder request = request(HttpMethod.valueOf(method), path);
+        MockHttpServletRequestBuilder request = request(HttpMethod.valueOf(method), path).with(signedIn());
         if (body != null) {
             request.contentType(MediaType.APPLICATION_JSON).content(body);
         }
@@ -110,7 +111,7 @@ class StubEndpointsTest {
 
     @Test
     void validationRunsBeforeTheStub() throws Exception {
-        mvc.perform(post("/api/exercises/" + ID + "/logs").contentType(MediaType.APPLICATION_JSON).content("""
+        mvc.perform(post("/api/exercises/" + ID + "/logs").with(signedIn()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"weight": 100, "reps": 37}"""))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.detail").value("At most 36 reps per set"));
@@ -118,7 +119,7 @@ class StubEndpointsTest {
 
     @Test
     void anInvalidSetInsideASessionIsReportedWithItsPath() throws Exception {
-        mvc.perform(post("/api/workouts/" + ID + "/sessions").contentType(MediaType.APPLICATION_JSON).content("""
+        mvc.perform(post("/api/workouts/" + ID + "/sessions").with(signedIn()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"exercises": [{"exerciseId": "%s", "sets": [{"weight": -1, "reps": 5}]}]}""".formatted(ID)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.detail").value("Enter a weight and the reps"))
@@ -127,7 +128,7 @@ class StubEndpointsTest {
 
     @Test
     void anEmptySessionIsRejected() throws Exception {
-        mvc.perform(post("/api/workouts/" + ID + "/sessions").contentType(MediaType.APPLICATION_JSON).content("""
+        mvc.perform(post("/api/workouts/" + ID + "/sessions").with(signedIn()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"exercises": []}"""))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.detail").value("Log at least one set before finishing"));
@@ -135,7 +136,11 @@ class StubEndpointsTest {
 
     @Test
     void aMalformedIdIsA404() throws Exception {
-        mvc.perform(get("/api/workouts/not-a-uuid"))
+        mvc.perform(get("/api/workouts/not-a-uuid").with(signedIn()))
             .andExpect(status().isNotFound());
+    }
+
+    private static RequestPostProcessor signedIn() {
+        return jwt().jwt(j -> j.subject(ID));
     }
 }

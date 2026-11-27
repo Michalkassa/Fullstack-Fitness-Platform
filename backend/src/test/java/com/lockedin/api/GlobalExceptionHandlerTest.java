@@ -24,6 +24,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,6 +49,7 @@ import com.lockedin.models.Workout;
  * {@code detail} is a sentence the frontend can show as-is.
  */
 @WebMvcTest(GlobalExceptionHandlerTest.ErrorTestController.class)
+@WithMockUser // the test routes aren't public; signing in keeps the focus on the handler
 @Import({SecurityConfig.class, GlobalExceptionHandlerTest.ErrorTestController.class})
 class GlobalExceptionHandlerTest {
 

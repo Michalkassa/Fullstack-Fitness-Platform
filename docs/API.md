@@ -97,8 +97,9 @@ validate it, or you can write a `OncePerRequestFilter`.
 **Public endpoints:** `POST /api/auth/register`, `POST /api/auth/login`, plus `/api/health` and
 `/actuator/health`. **Every other endpoint requires a valid token** and returns 401 without one.
 
-Until auth is built, [`SecurityConfig`](../backend/src/main/java/com/lockedin/config/SecurityConfig.java)
-allows every request.
+[`SecurityConfig`](../backend/src/main/java/com/lockedin/config/SecurityConfig.java) enforces this. A
+controller gets the signed-in user's id with a `@CurrentUser UUID userId` parameter. Public endpoints ignore
+the `Authorization` header, so a stale token left in the browser can't block logging in again.
 
 ---
 

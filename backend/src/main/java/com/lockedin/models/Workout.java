@@ -1,5 +1,7 @@
 package com.lockedin.models;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,14 +58,30 @@ public class Workout extends BaseEntity {
         this.description = Objects.requireNonNull(description, "description");
     }
 
-    /** Adds the exercise unless it's already in this workout. Returns whether it was added. */
+    /**
+     * Adds the exercise unless it's already in this workout. Returns whether it was added.
+     * Links are ordered by {@code createdAt}, so each new one is stamped strictly after the last.
+     */
     public boolean addExercise(Exercise exercise) {
         Objects.requireNonNull(exercise, "exercise");
         if (contains(exercise)) {
             return false;
         }
-        exercises.add(new WorkoutExercise(this, exercise));
+        WorkoutExercise link = new WorkoutExercise(this, exercise);
+        link.setCreatedAt(nextLinkTime());
+        exercises.add(link);
         return true;
+    }
+
+    private Instant nextLinkTime() {
+        Instant at = now();
+        if (!exercises.isEmpty()) {
+            Instant last = exercises.get(exercises.size() - 1).getCreatedAt();
+            if (last != null && !at.isAfter(last)) {
+                at = last.plus(1, ChronoUnit.MICROS);
+            }
+        }
+        return at;
     }
 
     /** Removes the exercise from this workout. Returns whether it was there. */

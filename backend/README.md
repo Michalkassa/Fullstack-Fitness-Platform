@@ -129,7 +129,7 @@ The order below unlocks the UI screen by screen. Write the failing test first fo
 
 ### 9. Export
 - [x] CSV builder + RFC 4180 escaping (unit tests), `GET /api/export/csv?type=`
-- [ ] `GET /api/export/pdf` (e.g. OpenPDF)
+- [x] `GET /api/export/pdf` (OpenPDF)
 
 ### 10. Hardening
 - [ ] Testcontainers integration test for the whole auth → log → analytics flow

@@ -1,6 +1,9 @@
 package com.lockedin.services;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -15,8 +18,12 @@ import com.lockedin.models.NutritionEntry;
 import com.lockedin.persistence.repositories.BodyWeightRepository;
 import com.lockedin.persistence.repositories.LogRepository;
 import com.lockedin.persistence.repositories.NutritionEntryRepository;
+import com.lockedin.persistence.repositories.UserRepository;
 
-/** CSV exports (docs/API.md, "GET /api/export/csv"): rows oldest first, UTC dates, RFC 4180 escaping. */
+/**
+ * Exports (docs/API.md, "Export"). CSV: rows oldest first, UTC dates, RFC 4180 escaping. PDF: a one-page
+ * progress report.
+ */
 @Service
 @Transactional(readOnly = true)
 public class ExportService {
@@ -26,11 +33,37 @@ public class ExportService {
     private final LogRepository logs;
     private final BodyWeightRepository bodyWeights;
     private final NutritionEntryRepository nutrition;
+    private final UserRepository users;
+    private final AnalyticsService analytics;
+    private final Clock clock;
 
-    public ExportService(LogRepository logs, BodyWeightRepository bodyWeights, NutritionEntryRepository nutrition) {
+    public ExportService(LogRepository logs, BodyWeightRepository bodyWeights, NutritionEntryRepository nutrition,
+                         UserRepository users, AnalyticsService analytics, Clock clock) {
         this.logs = logs;
         this.bodyWeights = bodyWeights;
         this.nutrition = nutrition;
+        this.users = users;
+        this.analytics = analytics;
+        this.clock = clock;
+    }
+
+    /**
+     * The user's email, today's date (UTC), total sets and volume (Σ weight × reps), first and latest body
+     * weight, and the personal records from {@link AnalyticsService#records}.
+     */
+    public byte[] pdf(UUID userId) {
+        String email = users.findById(userId).orElseThrow(() -> new NotFoundException("User not found")).getEmail();
+        List<Log> userLogs = logs.findByUserIdOrderByCreatedAtAsc(userId);
+        double volume = userLogs.stream().mapToDouble(log -> log.getWeight() * log.getReps()).sum();
+        List<BodyWeight> weights = bodyWeights.findByUserIdOrderByCreatedAtAsc(userId);
+        return ProgressReport.render(email, LocalDate.now(clock), userLogs.size(), volume,
+            weights.isEmpty() ? null : weight(weights.getFirst()),
+            weights.isEmpty() ? null : weight(weights.getLast()),
+            analytics.records(userId));
+    }
+
+    private static ProgressReport.Weight weight(BodyWeight entry) {
+        return new ProgressReport.Weight(entry.getWeight(), AnalyticsService.dayKey(entry.getCreatedAt()));
     }
 
     /** {@code type} is {@code logs}, {@code bodyweight} or {@code nutrition}; anything else is a 400. */

@@ -91,10 +91,11 @@ The order below unlocks the UI screen by screen. Write the failing test first fo
 - [x] Pure rules with unit tests: `OneRepMax` (Brzycki), `Xp` (`xpForLevel`, `levelFromXp`, `levelProgress`). Test cases are in API.md
 
 ### 2. Auth (unlocks login/register)
-- [ ] `User` entity + repository mapped to `users`
-- [ ] `POST /api/auth/register`: 201, 400, 409
-- [ ] `POST /api/auth/login`: 200, 401
-- [ ] JWT issue + validate; filter populates the security context
+- [x] `User` entity + repository mapped to `users`
+- [x] `POST /api/auth/register`: 201, 400, 409
+- [x] `POST /api/auth/login`: 200, 401
+- [x] JWT issue (`TokenService`, HS256 via `JwtConfig`)
+- [ ] JWT validate; filter populates the security context
 - [ ] `SecurityConfig`: permit only `/api/auth/**`, `/api/health`, `/actuator/health`; 401 for everything else without a valid token
 - [ ] `GET /api/users/me`, `GET /api/users/me/stats`
 

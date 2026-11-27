@@ -17,11 +17,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.lockedin.config.SecurityConfig;
 import com.lockedin.models.Log;
+import com.lockedin.services.TokenService;
+import com.lockedin.services.UserService;
 
 /**
  * Every endpoint in docs/API.md is mapped at its documented path and answers 501 until it's built.
@@ -36,9 +39,14 @@ class StubEndpointsTest {
     @Autowired
     MockMvc mvc;
 
+    // Dependencies of the controllers that are built; their own tests cover them.
+    @MockitoBean
+    UserService users;
+
+    @MockitoBean
+    TokenService tokens;
+
     static Stream<Arguments> endpoints() {
-        String credentials = """
-            {"email": "lifter@example.com", "password": "correct-horse"}""";
         String exercise = """
             {"name": "Bench", "description": "Press", "muscleGroup": null, "equipment": null}""";
         String nameAndDescription = """
@@ -50,8 +58,6 @@ class StubEndpointsTest {
         String session = """
             {"exercises": [{"exerciseId": "%s", "sets": [{"weight": 100, "reps": 5}]}]}""".formatted(ID);
         return Stream.of(
-            Arguments.of("POST", "/api/auth/register", credentials),
-            Arguments.of("POST", "/api/auth/login", credentials),
             Arguments.of("GET", "/api/users/me", null),
             Arguments.of("GET", "/api/users/me/stats", null),
             Arguments.of("GET", "/api/bodyweights", null),

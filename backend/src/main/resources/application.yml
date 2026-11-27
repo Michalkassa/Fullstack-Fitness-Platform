@@ -8,10 +8,11 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      # Flyway owns the schema (src/main/resources/db/migration); Hibernate only checks it.
+      # Flyway owns the schema (src/main/resources/persistence/db/migration); Hibernate only checks it.
       ddl-auto: validate
   flyway:
     enabled: true
+    locations: classpath:persistence/db/migration
 
 server:
   port: ${PORT:8080}

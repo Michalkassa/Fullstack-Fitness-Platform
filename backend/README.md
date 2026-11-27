@@ -11,10 +11,10 @@ you implement makes the matching screen work.
 |---|---|
 | `pom.xml` | Web MVC, Data JPA, Security, Validation, Flyway, Actuator, PostgreSQL, Testcontainers |
 | `src/main/resources/application.yml` | DB connection, CORS origins, JWT settings (all overridable by env vars) |
-| `src/main/resources/db/migration/V1__init_schema.sql` | All tables (UUID primary keys, cascading deletes) |
-| `src/main/resources/db/migration/V2__seed_catalog_and_programs.sql` | 34-exercise catalog, system user, 7 program templates |
+| `src/main/resources/persistence/db/migration/V1__init_schema.sql` | All tables (UUID primary keys, cascading deletes) |
+| `src/main/resources/persistence/db/migration/V2__seed_catalog_and_programs.sql` | 34-exercise catalog, system user, 7 program templates |
 | `config/SecurityConfig.java` | Stateless, CSRF off, CORS, BCrypt `PasswordEncoder`. **Every request is permitted for now.** |
-| `health/HealthController.java` + test | `GET /api/health`, a worked example of the test-first loop |
+| `api/HealthController.java` + test | `GET /api/health`, a worked example of the test-first loop |
 | `BackendApplicationTests` | Boots the full app against a Testcontainers Postgres (skipped without Docker) |
 | `TestBackendApplication` | Run the app locally against a throwaway Testcontainers Postgres |
 
@@ -61,24 +61,23 @@ Suggested layers (the original app's tests became the examples in API.md, "Busin
 Testcontainers needs Docker running. Without it, classes marked
 `@Testcontainers(disabledWithoutDocker = true)` are skipped instead of failing.
 
-## Suggested package layout
+## Package layout
 
-Package by feature, so each slice of the API lives together:
+Package by layer:
 
 ```
 com.lockedin
-├── config/        SecurityConfig, JWT filter, ProblemDetail exception handler
-├── auth/          AuthController, AuthService, JwtService, DTOs
-├── user/          User entity/repo, UserController (/api/users/me, /stats), XpService
-├── bodyweight/
-├── exercise/      Exercise, catalog, popular
-├── log/           Log, OneRepMax calculator
-├── workout/       Workout, WorkoutExercise, sessions
-├── program/       templates + copy
-├── nutrition/
-├── analytics/     pure aggregation + controller
-└── export/        CSV + PDF
+├── api/                  Controllers, GlobalExceptionHandler, NotImplementedException
+│   └── dto/              Request/response records matching the JSON in API.md
+├── models/               JPA entities (BaseEntity, User, Workout, …) and pure rules (OneRepMax, Xp)
+├── services/             Business logic called by the controllers
+├── persistence/
+│   └── repositories/     Spring Data JPA repositories
+└── config/               SecurityConfig, JWT filter
 ```
+
+Flyway migrations live in `src/main/resources/persistence/db/migration`
+(`spring.flyway.locations` points there).
 
 Use Java `record`s for request/response DTOs that match the JSON in API.md, and keep entities out of
 controller responses.

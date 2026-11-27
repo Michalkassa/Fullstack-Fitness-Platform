@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.lockedin.config.SecurityConfig;
+import com.lockedin.models.Log;
 
 /**
  * Every endpoint in docs/API.md is mapped at its documented path and answers 501 until it's built.

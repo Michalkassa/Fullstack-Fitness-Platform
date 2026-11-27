@@ -1068,6 +1068,9 @@ oneRepMax = floor(weight / (1.0278 - 0.0278 × reps))
 
 For the same weight, more reps gives a higher estimate. The result is always a whole number.
 
+Reps are capped at 36: at 37 the denominator turns negative and the estimate stops making sense. Validation
+rejects anything above 36 with a 400.
+
 ### XP and levels
 
 - `XP_PER_SET = 10` for every logged set (a single log or a set in a session).
@@ -1139,7 +1142,7 @@ rejects a request, the UI shows the message from the table.
 | exercise / workout `description` | required, not blank | `Enter a name and a description` |
 | body weight `weight` | > 0 | `Please enter a weight` |
 | log / set `weight` | >= 0 | `Enter a weight and the reps` |
-| log / set `reps` | whole number > 0 | `Enter a weight and the reps` |
+| log / set `reps` | whole number, 1 to 36 | `Enter a weight and the reps` |
 | nutrition `calories` | required whole number >= 0 | `Enter a calorie amount` / `Calories cannot be negative` |
 | nutrition `protein` / `carbs` / `fat` | >= 0, default 0 | `Macros cannot be negative` |
 

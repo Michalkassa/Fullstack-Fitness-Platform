@@ -89,7 +89,7 @@ The order below unlocks the UI screen by screen. Write the failing test first fo
 
 ### 1. Foundations
 - [ ] Global `@RestControllerAdvice` that turns validation errors, not-found and conflicts into `ProblemDetail` (400 / 404 / 409) with a user-facing `detail`
-- [ ] Pure rules with unit tests: `OneRepMax` (Brzycki), `Xp` (`xpForLevel`, `levelFromXp`, `levelProgress`). Test cases are in API.md
+- [x] Pure rules with unit tests: `OneRepMax` (Brzycki), `Xp` (`xpForLevel`, `levelFromXp`, `levelProgress`). Test cases are in API.md
 
 ### 2. Auth (unlocks login/register)
 - [ ] `User` entity + repository mapped to `users`

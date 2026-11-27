@@ -132,5 +132,5 @@ The order below unlocks the UI screen by screen. Write the failing test first fo
 - [x] `GET /api/export/pdf` (OpenPDF)
 
 ### 10. Hardening
-- [ ] Testcontainers integration test for the whole auth → log → analytics flow
+- [x] Testcontainers integration test for the whole auth → log → analytics flow (`TrainingFlowTest`)
 - [ ] Optional: springdoc-openapi to serve Swagger UI from the controllers

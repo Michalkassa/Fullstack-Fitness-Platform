@@ -17,35 +17,42 @@ import jakarta.validation.Valid;
 
 import com.lockedin.api.dto.LogRequest;
 import com.lockedin.api.dto.LogResponse;
-import com.lockedin.models.Xp;
+import com.lockedin.services.LogService;
 
 /** docs/API.md, "Logs": endpoints 15–18. An exercise or log that isn't the user's is a 404. */
 @RestController
 class LogController {
 
+    private final LogService logService;
+
+    LogController(LogService logService) {
+        this.logService = logService;
+    }
+
     /** 15. Oldest first. */
     @GetMapping("/api/exercises/{exerciseId}/logs")
-    List<LogResponse> list(@PathVariable UUID exerciseId) {
-        throw new NotImplementedException();
+    List<LogResponse> list(@CurrentUser UUID userId, @PathVariable UUID exerciseId) {
+        return logService.list(userId, exerciseId);
     }
 
     /** 16. The most recent {@code limit} sets, newest first. */
     @GetMapping("/api/exercises/{exerciseId}/logs/previous")
-    List<LogResponse> previous(@PathVariable UUID exerciseId, @RequestParam int limit) {
-        throw new NotImplementedException();
+    List<LogResponse> previous(@CurrentUser UUID userId, @PathVariable UUID exerciseId, @RequestParam int limit) {
+        return logService.previous(userId, exerciseId, limit);
     }
 
     /** 17. Calculates {@code oneRepMax} and awards {@code Xp.PER_SET}. */
     @PostMapping("/api/exercises/{exerciseId}/logs")
     @ResponseStatus(HttpStatus.CREATED)
-    LogResponse create(@PathVariable UUID exerciseId, @Valid @RequestBody LogRequest request) {
-        throw new NotImplementedException();
+    LogResponse create(@CurrentUser UUID userId, @PathVariable UUID exerciseId,
+            @Valid @RequestBody LogRequest request) {
+        return logService.create(userId, exerciseId, request);
     }
 
     /** 18. Awarded XP isn't taken back. */
     @DeleteMapping("/api/logs/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable UUID id) {
-        throw new NotImplementedException();
+    void delete(@CurrentUser UUID userId, @PathVariable UUID id) {
+        logService.delete(userId, id);
     }
 }

@@ -23,6 +23,7 @@ import com.lockedin.api.dto.WorkoutRequest;
 import com.lockedin.api.dto.WorkoutResponse;
 import com.lockedin.api.dto.WorkoutSessionRequest;
 import com.lockedin.api.dto.WorkoutSessionResult;
+import com.lockedin.services.WorkoutService;
 
 /**
  * docs/API.md, "Workouts": endpoints 19–26. Program templates never show up here:
@@ -32,56 +33,65 @@ import com.lockedin.api.dto.WorkoutSessionResult;
 @RequestMapping("/api/workouts")
 class WorkoutController {
 
-    /** 19. Newest first, each with its exercises (fetch them in bulk, not one query per workout). */
+    private final WorkoutService workoutService;
+
+    WorkoutController(WorkoutService workoutService) {
+        this.workoutService = workoutService;
+    }
+
+    /** 19. Newest first, each with its exercises (fetched in bulk, not one query per workout). */
     @GetMapping
-    List<WorkoutResponse> list() {
-        throw new NotImplementedException();
+    List<WorkoutResponse> list(@CurrentUser UUID userId) {
+        return workoutService.list(userId);
     }
 
     /** 20. */
     @GetMapping("/{id}")
-    WorkoutResponse get(@PathVariable UUID id) {
-        throw new NotImplementedException();
+    WorkoutResponse get(@CurrentUser UUID userId, @PathVariable UUID id) {
+        return workoutService.get(userId, id);
     }
 
     /** 21. Starts with {@code "exercises": []}. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    WorkoutResponse create(@Valid @RequestBody WorkoutRequest request) {
-        throw new NotImplementedException();
+    WorkoutResponse create(@CurrentUser UUID userId, @Valid @RequestBody WorkoutRequest request) {
+        return workoutService.create(userId, request);
     }
 
     /** 22. */
     @PutMapping("/{id}")
-    WorkoutResponse update(@PathVariable UUID id, @Valid @RequestBody WorkoutRequest request) {
-        throw new NotImplementedException();
+    WorkoutResponse update(@CurrentUser UUID userId, @PathVariable UUID id,
+            @Valid @RequestBody WorkoutRequest request) {
+        return workoutService.update(userId, id, request);
     }
 
     /** 23. Deletes the workout and its links; the exercises and their logs stay. */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable UUID id) {
-        throw new NotImplementedException();
+    void delete(@CurrentUser UUID userId, @PathVariable UUID id) {
+        workoutService.delete(userId, id);
     }
 
     /** 24. 201 with the new link, or 200 with the existing one if the exercise is already in the workout. */
     @PostMapping("/{id}/exercises")
-    ResponseEntity<WorkoutExerciseResponse> addExercise(
-            @PathVariable UUID id, @Valid @RequestBody AddWorkoutExerciseRequest request) {
-        throw new NotImplementedException();
+    ResponseEntity<WorkoutExerciseResponse> addExercise(@CurrentUser UUID userId, @PathVariable UUID id,
+            @Valid @RequestBody AddWorkoutExerciseRequest request) {
+        WorkoutService.AddedExercise added = workoutService.addExercise(userId, id, request.exerciseId());
+        return ResponseEntity.status(added.created() ? HttpStatus.CREATED : HttpStatus.OK).body(added.exercise());
     }
 
     /** 25. {@code workoutExerciseId} is the link id; 404 if the link isn't part of this workout. */
     @DeleteMapping("/{id}/exercises/{workoutExerciseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void removeExercise(@PathVariable UUID id, @PathVariable UUID workoutExerciseId) {
-        throw new NotImplementedException();
+    void removeExercise(@CurrentUser UUID userId, @PathVariable UUID id, @PathVariable UUID workoutExerciseId) {
+        workoutService.removeExercise(userId, id, workoutExerciseId);
     }
 
     /** 26. Saves every set as a log with the same timestamp, in one transaction, and awards XP. */
     @PostMapping("/{id}/sessions")
     @ResponseStatus(HttpStatus.CREATED)
-    WorkoutSessionResult finishSession(@PathVariable UUID id, @Valid @RequestBody WorkoutSessionRequest request) {
-        throw new NotImplementedException();
+    WorkoutSessionResult finishSession(@CurrentUser UUID userId, @PathVariable UUID id,
+            @Valid @RequestBody WorkoutSessionRequest request) {
+        return workoutService.finishSession(userId, id, request);
     }
 }

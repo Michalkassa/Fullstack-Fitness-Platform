@@ -12,16 +12,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lockedin.api.dto.WorkoutResponse;
+import com.lockedin.services.ProgramService;
 
 /** docs/API.md, "Programs": endpoints 27–28. Programs are public template workouts seeded by Flyway V2. */
 @RestController
 @RequestMapping("/api/programs")
 class ProgramController {
 
+    private final ProgramService programService;
+
+    ProgramController(ProgramService programService) {
+        this.programService = programService;
+    }
+
     /** 27. All public templates, sorted by name. */
     @GetMapping
     List<WorkoutResponse> list() {
-        throw new NotImplementedException();
+        return programService.list();
     }
 
     /**
@@ -30,7 +37,7 @@ class ProgramController {
      */
     @PostMapping("/{id}/copy")
     @ResponseStatus(HttpStatus.CREATED)
-    WorkoutResponse copy(@PathVariable UUID id) {
-        throw new NotImplementedException();
+    WorkoutResponse copy(@CurrentUser UUID userId, @PathVariable UUID id) {
+        return programService.copy(userId, id);
     }
 }

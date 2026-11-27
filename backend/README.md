@@ -100,35 +100,35 @@ The order below unlocks the UI screen by screen. Write the failing test first fo
 - [x] `GET /api/users/me`, `GET /api/users/me/stats`
 
 ### 3. Body weight (Body Weight page, dashboard chart)
-- [ ] `GET` / `POST` / `DELETE /api/bodyweights`. Test that one user can't see or delete another's rows (404)
+- [x] `GET` / `POST` / `DELETE /api/bodyweights`. Test that one user can't see or delete another's rows (404)
 
 ### 4. Exercises and logs (Exercises pages)
-- [ ] `GET /api/exercise-catalog`
-- [ ] Exercise CRUD: `GET /api/exercises`, `GET/PUT/DELETE /api/exercises/{id}`, `POST /api/exercises`
-- [ ] `GET /api/exercises/{id}/logs`, `POST /api/exercises/{id}/logs` (computes 1RM, +10 XP), `DELETE /api/logs/{id}`
-- [ ] `GET /api/exercises/{id}/logs/previous?limit=n`
-- [ ] `GET /api/exercises/popular`
+- [x] `GET /api/exercise-catalog`
+- [x] Exercise CRUD: `GET /api/exercises`, `GET/PUT/DELETE /api/exercises/{id}`, `POST /api/exercises`
+- [x] `GET /api/exercises/{id}/logs`, `POST /api/exercises/{id}/logs` (computes 1RM, +10 XP), `DELETE /api/logs/{id}`
+- [x] `GET /api/exercises/{id}/logs/previous?limit=n`
+- [x] `GET /api/exercises/popular`
 
 ### 5. Workouts (Workouts, Start Workout, live tracker)
-- [ ] Workout CRUD with nested `exercises`
-- [ ] `POST` / `DELETE /api/workouts/{id}/exercises…` (idempotent add)
-- [ ] `POST /api/workouts/{id}/sessions`: transactional, all-or-nothing, XP = sets × 10 + 25
+- [x] Workout CRUD with nested `exercises`
+- [x] `POST` / `DELETE /api/workouts/{id}/exercises…` (idempotent add)
+- [x] `POST /api/workouts/{id}/sessions`: transactional, all-or-nothing, XP = sets × 10 + 25
 
 ### 6. Programs
-- [ ] `GET /api/programs`
-- [ ] `POST /api/programs/{id}/copy`: reuse exercises by name, otherwise copy
+- [x] `GET /api/programs`
+- [x] `POST /api/programs/{id}/copy`: reuse exercises by name, otherwise copy
 
 ### 7. Nutrition
-- [ ] Entries `GET` / `POST` / `DELETE`
-- [ ] `PUT /api/nutrition/goal` (upsert)
-- [ ] `GET /api/nutrition/summary?since=`
+- [x] Entries `GET` / `POST` / `DELETE`
+- [x] `PUT /api/nutrition/goal` (upsert)
+- [x] `GET /api/nutrition/summary?since=`
 
 ### 8. Analytics (dashboard, Records page)
-- [ ] Pure `dayKey` / `weekKey`, `weeklyStats`, `activityByDay`, `personalRecords` with the API.md examples as tests
-- [ ] `GET /api/analytics/weekly`, `/activity`, `/records`
+- [x] Pure `dayKey` / `weekKey`, `weeklyStats`, `activityByDay`, `personalRecords` with the API.md examples as tests
+- [x] `GET /api/analytics/weekly`, `/activity`, `/records`
 
 ### 9. Export
-- [ ] CSV builder + RFC 4180 escaping (unit tests), `GET /api/export/csv?type=`
+- [x] CSV builder + RFC 4180 escaping (unit tests), `GET /api/export/csv?type=`
 - [ ] `GET /api/export/pdf` (e.g. OpenPDF)
 
 ### 10. Hardening

@@ -21,47 +21,55 @@ import com.lockedin.api.dto.ExerciseRequest;
 import com.lockedin.api.dto.ExerciseResponse;
 import com.lockedin.api.dto.ExerciseUpdateRequest;
 import com.lockedin.api.dto.PopularExerciseResponse;
+import com.lockedin.services.ExerciseService;
 
 /** docs/API.md, "Exercises": endpoints 8–13. An exercise that isn't the user's is a 404. */
 @RestController
 @RequestMapping("/api/exercises")
 class ExerciseController {
 
+    private final ExerciseService exerciseService;
+
+    ExerciseController(ExerciseService exerciseService) {
+        this.exerciseService = exerciseService;
+    }
+
     /** 8. The user's own exercises, newest first. */
     @GetMapping
-    List<ExerciseResponse> list() {
-        throw new NotImplementedException();
+    List<ExerciseResponse> list(@CurrentUser UUID userId) {
+        return exerciseService.list(userId);
     }
 
     /** 9. Most-logged first; exercises with 0 logs may come last. */
     @GetMapping("/popular")
-    List<PopularExerciseResponse> popular(@RequestParam(defaultValue = "5") int limit) {
-        throw new NotImplementedException();
+    List<PopularExerciseResponse> popular(@CurrentUser UUID userId, @RequestParam(defaultValue = "5") int limit) {
+        return exerciseService.popular(userId, limit);
     }
 
     /** 10. */
     @GetMapping("/{id}")
-    ExerciseResponse get(@PathVariable UUID id) {
-        throw new NotImplementedException();
+    ExerciseResponse get(@CurrentUser UUID userId, @PathVariable UUID id) {
+        return exerciseService.get(userId, id);
     }
 
     /** 11. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    ExerciseResponse create(@Valid @RequestBody ExerciseRequest request) {
-        throw new NotImplementedException();
+    ExerciseResponse create(@CurrentUser UUID userId, @Valid @RequestBody ExerciseRequest request) {
+        return exerciseService.create(userId, request);
     }
 
     /** 12. Changes name and description only. */
     @PutMapping("/{id}")
-    ExerciseResponse update(@PathVariable UUID id, @Valid @RequestBody ExerciseUpdateRequest request) {
-        throw new NotImplementedException();
+    ExerciseResponse update(@CurrentUser UUID userId, @PathVariable UUID id,
+            @Valid @RequestBody ExerciseUpdateRequest request) {
+        return exerciseService.update(userId, id, request);
     }
 
     /** 13. The database cascades the delete to its logs and workout links. */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable UUID id) {
-        throw new NotImplementedException();
+    void delete(@CurrentUser UUID userId, @PathVariable UUID id) {
+        exerciseService.delete(userId, id);
     }
 }
